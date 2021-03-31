@@ -71,7 +71,7 @@ PrintDexEntry:
 	ld hl, hVBlank
 	ld a, [hl]
 	push af
-	ld [hl], 4
+	ld [hl], 4 ; vblank mode that calls AskSerial
 
 	ld a, 8 ; 16 rows
 	ld [wPrinterQueueLength], a
@@ -146,7 +146,7 @@ PrintPCBox:
 	ld hl, hVBlank
 	ld a, [hl]
 	push af
-	ld [hl], $4
+	ld [hl], 4 ; vblank mode that calls AskSerial
 
 	xor a
 	ldh [hBGMapMode], a
@@ -212,19 +212,23 @@ Printer_ResetRegistersAndStartDataSend:
 PrintUnownStamp:
 	ld a, [wPrinterQueueLength]
 	push af
+
 	xor a
 	ldh [hPrinter], a
 	call Printer_PlayMusic
+
 	ldh a, [rIE]
 	push af
 	xor a
 	ldh [rIF], a
 	ld a, (1 << SERIAL) | (1 << VBLANK)
 	ldh [rIE], a
+
 	ld hl, hVBlank
 	ld a, [hl]
 	push af
-	ld [hl], $4
+	ld [hl], 4 ; vblank mode that calls AskSerial
+
 	xor a
 	ldh [hBGMapMode], a
 	call LoadTilemapToTempTilemap
@@ -233,6 +237,7 @@ PrintUnownStamp:
 	call Printer_PrepareTilemapForPrint
 	call SafeLoadTempTilemapToTilemap
 	call Printer_ResetJoypadRegisters
+
 	ld a, 18 / 2
 	ld [wPrinterQueueLength], a
 .loop
@@ -260,10 +265,12 @@ PrintUnownStamp:
 	ldh [hVBlank], a
 	call Printer_CleanUpAfterSend
 	call SafeLoadTempTilemapToTilemap
+
 	xor a
 	ldh [rIF], a
 	pop af
 	ldh [rIE], a
+
 	pop af
 	ld [wPrinterQueueLength], a
 	ret
@@ -295,7 +302,7 @@ PrintMail:
 	ld hl, hVBlank
 	ld a, [hl]
 	push af
-	ld [hl], $4
+	ld [hl], 4 ; vblank mode that calls AskSerial
 
 	ld a, 18 / 2
 	ld [wPrinterQueueLength], a
@@ -338,7 +345,7 @@ PrintPartymon:
 	ld hl, hVBlank
 	ld a, [hl]
 	push af
-	ld [hl], $4
+	ld [hl], 4 ; vblank mode that calls AskSerial
 
 	ld a, 16 / 2
 	ld [wPrinterQueueLength], a
@@ -396,7 +403,7 @@ _PrintDiploma:
 	ld hl, hVBlank
 	ld a, [hl]
 	push af
-	ld [hl], $4
+	ld [hl], 4 ; vblank mode that calls AskSerial
 
 	ln a, 1, 0 ; to be loaded to wPrinterMargins
 	call Printer_PrepareTilemapForPrint
@@ -447,9 +454,11 @@ CheckCancelPrint:
 	ret
 
 .pressed_b
-	ld a, [wca80]
+	ld a, [wUnusedGameboyPrinterSafeCancelFlag]
 	cp $0c
 	jr nz, .cancel
+
+; wait for printer activity to finish before canceling?
 .loop
 	ld a, [wPrinterOpcode]
 	and a
@@ -565,7 +574,7 @@ PlacePrinterStatusString:
 	ld d, [hl]
 	hlcoord 1, 7
 	ld a, BANK(GBPrinterStrings)
-	call FarString
+	call PlaceFarString
 	hlcoord 2, 15
 	ld de, String_PressBToCancel
 	call PlaceString
@@ -598,7 +607,7 @@ PlacePrinterStatusStringBorderless: ; unreferenced
 	ld d, [hl]
 	hlcoord 4, 7
 	ld a, BANK(GBPrinterStrings)
-	call FarString
+	call PlaceFarString
 	hlcoord 4, 15
 	ld de, String_PressBToCancel
 	call PlaceString
@@ -726,7 +735,7 @@ Printer_PrintBoxListSegment:
 	ld a, [de]
 	cp $ff
 	jp z, .finish
-	ld [wNamedObjectIndexBuffer], a
+	ld [wNamedObjectIndex], a
 	ld [wCurPartySpecies], a
 
 	push bc
@@ -850,7 +859,7 @@ Printer_GetMonGender:
 Printer_GetBoxMonSpecies:
 	push hl
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld a, [wAddrOfBoxToPrint]
 	ld l, a
 	ld a, [wAddrOfBoxToPrint + 1]

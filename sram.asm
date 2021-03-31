@@ -1,28 +1,33 @@
 SECTION "Scratch", SRAM
 
-sScratch:: ds $600
+sScratch:: ds $60 tiles
 
 
 SECTION "SRAM Bank 0", SRAM
 
 sPartyMail::
+	table_width MAIL_STRUCT_LENGTH, sPartyMail
 sPartyMon1Mail:: mailmsg sPartyMon1Mail
 sPartyMon2Mail:: mailmsg sPartyMon2Mail
 sPartyMon3Mail:: mailmsg sPartyMon3Mail
 sPartyMon4Mail:: mailmsg sPartyMon4Mail
 sPartyMon5Mail:: mailmsg sPartyMon5Mail
 sPartyMon6Mail:: mailmsg sPartyMon6Mail
+	assert_table_length PARTY_LENGTH
 
 sPartyMailBackup::
+	table_width MAIL_STRUCT_LENGTH, sPartyMailBackup
 sPartyMon1MailBackup:: mailmsg sPartyMon1MailBackup
 sPartyMon2MailBackup:: mailmsg sPartyMon2MailBackup
 sPartyMon3MailBackup:: mailmsg sPartyMon3MailBackup
 sPartyMon4MailBackup:: mailmsg sPartyMon4MailBackup
 sPartyMon5MailBackup:: mailmsg sPartyMon5MailBackup
 sPartyMon6MailBackup:: mailmsg sPartyMon6MailBackup
+	assert_table_length PARTY_LENGTH
 
 sMailboxCount:: db
-sMailbox::
+sMailboxes::
+	table_width MAIL_STRUCT_LENGTH, sMailboxes
 sMailbox1::  mailmsg sMailbox1
 sMailbox2::  mailmsg sMailbox2
 sMailbox3::  mailmsg sMailbox3
@@ -33,9 +38,11 @@ sMailbox7::  mailmsg sMailbox7
 sMailbox8::  mailmsg sMailbox8
 sMailbox9::  mailmsg sMailbox9
 sMailbox10:: mailmsg sMailbox10
+	assert_table_length MAILBOX_CAPACITY
 
 sMailboxCountBackup:: db
-sMailboxBackup::
+sMailboxesBackup::
+	table_width MAIL_STRUCT_LENGTH, sMailboxesBackup
 sMailbox1Backup::  mailmsg sMailbox1Backup
 sMailbox2Backup::  mailmsg sMailbox2Backup
 sMailbox3Backup::  mailmsg sMailbox3Backup
@@ -46,26 +53,28 @@ sMailbox7Backup::  mailmsg sMailbox7Backup
 sMailbox8Backup::  mailmsg sMailbox8Backup
 sMailbox9Backup::  mailmsg sMailbox9Backup
 sMailbox10Backup:: mailmsg sMailbox10Backup
+	assert_table_length MAILBOX_CAPACITY
 
+sMysteryGiftData::
 sMysteryGiftItem:: db
 sMysteryGiftUnlocked:: db
 sBackupMysteryGiftItem:: db
 sNumDailyMysteryGiftPartnerIDs:: db
-sDailyMysteryGiftPartnerIDs:: ds 5 * 2 ; maximum 5 per day, 2 bytes per ID
+sDailyMysteryGiftPartnerIDs:: ds MAX_MYSTERY_GIFT_PARTNERS * 2
 sMysteryGiftDecorationsReceived:: flag_array NUM_NON_TROPHY_DECOS
 	ds 4
-sMysteryGiftTimer:: db
-sMysteryGiftTimerStartDay:: db
+sMysteryGiftTimer:: dw
 	ds 1
 sMysteryGiftTrainerHouseFlag:: db
 sMysteryGiftPartnerName:: ds NAME_LENGTH
-	ds 1
-sMysteryGiftTrainer:: ds (1 + 1 + NUM_MOVES) * PARTY_LENGTH + 2
+sMysteryGiftUnusedFlag:: db
+sMysteryGiftTrainer:: ds wMysteryGiftTrainerEnd - wMysteryGiftTrainer
 sBackupMysteryGiftItemEnd::
 
 	ds $30
 
-sRTCStatusFlags:: ds 8
+sRTCStatusFlags:: db
+	ds 7
 sLuckyNumberDay:: db
 sLuckyIDNumber::  dw
 
@@ -133,17 +142,20 @@ sLinkBattleLosses:: dw
 sLinkBattleDraws::  dw
 
 sLinkBattleRecord::
+	table_width LINK_BATTLE_RECORD_LENGTH, sLinkBattleRecord
 sLinkBattleRecord1:: link_battle_record sLinkBattleRecord1
 sLinkBattleRecord2:: link_battle_record sLinkBattleRecord2
 sLinkBattleRecord3:: link_battle_record sLinkBattleRecord3
 sLinkBattleRecord4:: link_battle_record sLinkBattleRecord4
 sLinkBattleRecord5:: link_battle_record sLinkBattleRecord5
+	assert_table_length NUM_LINK_BATTLE_RECORDS
 sLinkBattleStatsEnd::
 
 
 SECTION "SRAM Hall of Fame", SRAM
 
 sHallOfFame::
+	table_width HOF_LENGTH, sHallOfFame
 sHallOfFame01:: hall_of_fame sHallOfFame01
 sHallOfFame02:: hall_of_fame sHallOfFame02
 sHallOfFame03:: hall_of_fame sHallOfFame03
@@ -174,6 +186,7 @@ sHallOfFame27:: hall_of_fame sHallOfFame27
 sHallOfFame28:: hall_of_fame sHallOfFame28
 sHallOfFame29:: hall_of_fame sHallOfFame29
 sHallOfFame30:: hall_of_fame sHallOfFame30
+	assert_table_length NUM_HOF_TEAMS
 sHallOfFameEnd::
 
 
@@ -194,7 +207,6 @@ sBattleTowerChallengeState::
 ; 2: battle tower
 	db
 
-sBattleTower::
 sNrOfBeatenBattleTowerTrainers:: db
 sBTChoiceOfLevelGroup:: db
 ; Battle Tower trainers are saved here, so nobody appears more than once
@@ -331,11 +343,8 @@ s5_a826:: db
 
 	ds $6d
 
-s5_a894:: ds NAME_LENGTH_JAPANESE
-
-	ds $1
-
-s5_a89b:: ds 1
+s5_a894:: ds 6
+s5_a89a:: dw
 s5_a89c:: ds 22
 s5_a8b2:: ds 150
 

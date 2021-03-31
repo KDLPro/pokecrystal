@@ -413,7 +413,7 @@ PokeAnim_End:
 PokeAnim_GetDuration:
 ; a * (1 + [wPokeAnimSpeed] / 16)
 	ld c, a
-	ld b, $0
+	ld b, 0
 	ld hl, 0
 	ld a, [wPokeAnimSpeed]
 	call AddNTimes
@@ -466,7 +466,7 @@ PokeAnim_GetPointer:
 	push hl
 	ld a, [wPokeAnimFrame]
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld hl, wPokeAnimPointerAddr
 	ld a, [hli]
 	ld h, [hl]
@@ -474,7 +474,7 @@ PokeAnim_GetPointer:
 	add hl, de
 	add hl, de
 	ld a, [wPokeAnimPointerBank]
-	call GetFarHalfword
+	call GetFarWord
 	ld a, l
 	ld [wPokeAnimCommand], a
 	ld a, h
@@ -488,7 +488,7 @@ PokeAnim_GetBitmaskIndex:
 	ld a, [wPokeAnimCommand]
 	dec a
 	ld c, a
-	ld b, $0
+	ld b, 0
 	ld hl, wPokeAnimFramesAddr
 	ld a, [hli]
 	ld h, [hl]
@@ -496,7 +496,7 @@ PokeAnim_GetBitmaskIndex:
 	add hl, bc
 	add hl, bc
 	ld a, [wPokeAnimFramesBank]
-	call GetFarHalfword
+	call GetFarWord
 	ld a, [wPokeAnimFramesBank]
 	call GetFarByte
 	ld [wPokeAnimCurBitmask], a
@@ -628,14 +628,16 @@ PokeAnim_ConvertAndApplyBitmask:
 	call AddNTimes
 	ld a, [wBoxAlignment]
 	and a
-	jr nz, .go
+	jr nz, .subtract
+	; hl += [wPokeAnimBitmaskCurCol]
 	ld a, [wPokeAnimBitmaskCurCol]
 	ld e, a
 	ld d, 0
 	add hl, de
-	jr .skip2
+	jr .done
 
-.go
+.subtract
+	; hl -= [wPokeAnimBitmaskCurCol]
 	ld a, [wPokeAnimBitmaskCurCol]
 	ld e, a
 	ld a, l
@@ -645,10 +647,10 @@ PokeAnim_ConvertAndApplyBitmask:
 	sbc 0
 	ld h, a
 
-.skip2
+.done
 	ret
 
-; unused
+.UnusedSizeData: ; unreferenced
 	db 6, 5, 4
 
 .GetTilemap:
@@ -915,7 +917,7 @@ GetMonAnimPointer:
 	add hl, de
 	ld a, c
 	ld [wPokeAnimPointerBank], a
-	call GetFarHalfword
+	call GetFarWord
 	ld a, l
 	ld [wPokeAnimPointerAddr], a
 	ld a, h
@@ -982,7 +984,7 @@ GetMonFramesPointer:
 	add hl, de
 	add hl, de
 	ld a, b
-	call GetFarHalfword
+	call GetFarWord
 	ld a, l
 	ld [wPokeAnimFramesAddr], a
 	ld a, h
@@ -1020,7 +1022,7 @@ GetMonBitmaskPointer:
 	add hl, de
 	add hl, de
 	ld a, [wPokeAnimBitmaskBank]
-	call GetFarHalfword
+	call GetFarWord
 	ld a, l
 	ld [wPokeAnimBitmaskAddr], a
 	ld a, h

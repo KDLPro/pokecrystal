@@ -6,6 +6,7 @@ ENDM
 
 EngineFlags:
 ; entries correspond to ENGINE_* constants
+	table_width 3, EngineFlags
 
 	; pokegear
 	engine_flag wPokegearFlags, POKEGEAR_RADIO_CARD_F
@@ -125,7 +126,7 @@ EngineFlags:
 	engine_flag wSwarmFlags, SWARMFLAGS_BUENAS_PASSWORD_F
 	engine_flag wSwarmFlags, SWARMFLAGS_GOLDENROD_DEPT_STORE_SALE_F
 
-	engine_flag wGameTimerPause, GAMETIMERPAUSE_MOBILE_7_F
+	engine_flag wGameTimerPaused, GAME_TIMER_MOBILE_F
 
 	engine_flag wPlayerGender, PLAYERGENDER_FEMALE_F
 
@@ -197,3 +198,5 @@ EngineFlags:
 
 	engine_flag wSwarmFlags, SWARMFLAGS_DUNSPARCE_SWARM_F
 	engine_flag wSwarmFlags, SWARMFLAGS_YANMA_SWARM_F
+
+	assert_table_length NUM_ENGINE_FLAGS

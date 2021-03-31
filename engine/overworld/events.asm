@@ -8,7 +8,7 @@ OverworldLoop::
 	ld [wMapStatus], a
 .loop
 	ld a, [wMapStatus]
-	ld hl, .jumps
+	ld hl, .Jumptable
 	rst JumpTable
 	ld a, [wMapStatus]
 	cp MAPSTATUS_DONE
@@ -16,7 +16,7 @@ OverworldLoop::
 .done
 	ret
 
-.jumps
+.Jumptable:
 ; entries correspond to MAPSTATUS_* constants
 	dw StartMap
 	dw EnterMap
@@ -25,76 +25,76 @@ OverworldLoop::
 
 DisableEvents:
 	xor a
-	ld [wScriptFlags3], a
+	ld [wScriptFlags2], a
 	ret
 
 EnableEvents::
 	ld a, $ff
-	ld [wScriptFlags3], a
+	ld [wScriptFlags2], a
 	ret
 
-CheckBit5_ScriptFlags3:
-	ld hl, wScriptFlags3
+CheckBit5_ScriptFlags2:
+	ld hl, wScriptFlags2
 	bit 5, [hl]
 	ret
 
-DisableWarpsConnxns:
-	ld hl, wScriptFlags3
+DisableWarpsConnxns: ; unreferenced
+	ld hl, wScriptFlags2
 	res 2, [hl]
 	ret
 
-DisableCoordEvents:
-	ld hl, wScriptFlags3
+DisableCoordEvents: ; unreferenced
+	ld hl, wScriptFlags2
 	res 1, [hl]
 	ret
 
-DisableStepCount:
-	ld hl, wScriptFlags3
+DisableStepCount: ; unreferenced
+	ld hl, wScriptFlags2
 	res 0, [hl]
 	ret
 
-DisableWildEncounters:
-	ld hl, wScriptFlags3
+DisableWildEncounters: ; unreferenced
+	ld hl, wScriptFlags2
 	res 4, [hl]
 	ret
 
-EnableWarpsConnxns:
-	ld hl, wScriptFlags3
+EnableWarpsConnxns: ; unreferenced
+	ld hl, wScriptFlags2
 	set 2, [hl]
 	ret
 
-EnableCoordEvents:
-	ld hl, wScriptFlags3
+EnableCoordEvents: ; unreferenced
+	ld hl, wScriptFlags2
 	set 1, [hl]
 	ret
 
-EnableStepCount:
-	ld hl, wScriptFlags3
+EnableStepCount: ; unreferenced
+	ld hl, wScriptFlags2
 	set 0, [hl]
 	ret
 
 EnableWildEncounters:
-	ld hl, wScriptFlags3
+	ld hl, wScriptFlags2
 	set 4, [hl]
 	ret
 
 CheckWarpConnxnScriptFlag:
-	ld hl, wScriptFlags3
+	ld hl, wScriptFlags2
 	bit 2, [hl]
 	ret
 
 CheckCoordEventScriptFlag:
-	ld hl, wScriptFlags3
+	ld hl, wScriptFlags2
 	bit 1, [hl]
 	ret
 
 CheckStepCountScriptFlag:
-	ld hl, wScriptFlags3
+	ld hl, wScriptFlags2
 	bit 0, [hl]
 	ret
 
 CheckWildEncountersScriptFlag:
-	ld hl, wScriptFlags3
+	ld hl, wScriptFlags2
 	bit 4, [hl]
 	ret
 
@@ -135,7 +135,7 @@ EnterMap:
 	ld [wMapStatus], a
 	ret
 
-UnusedWait30Frames:
+UnusedWait30Frames: ; unreferenced
 	ld c, 30
 	call DelayFrames
 	ret
@@ -159,22 +159,22 @@ HandleMap:
 
 MapEvents:
 	ld a, [wMapEventStatus]
-	ld hl, .jumps
+	ld hl, .Jumptable
 	rst JumpTable
 	ret
 
-.jumps
+.Jumptable:
 ; entries correspond to MAPEVENTS_* constants
 	dw .events
 	dw .no_events
 
-.events
+.events:
 	call PlayerEvents
 	call DisableEvents
 	farcall ScriptEvents
 	ret
 
-.no_events
+.no_events:
 	ret
 
 MaxOverworldDelay:
@@ -204,7 +204,7 @@ HandleMapTimeAndJoypad:
 	ret
 
 HandleMapObjects:
-	farcall HandleNPCStep ; engine/map_objects.asm
+	farcall HandleNPCStep
 	farcall _HandlePlayerStep
 	call _CheckObjectEnteringVisibleRange
 	ret
@@ -248,7 +248,7 @@ PlayerEvents:
 	and a
 	ret nz
 
-	call Dummy_CheckScriptFlags3Bit5 ; This is a waste of time
+	call Dummy_CheckScriptFlags2Bit5 ; This is a waste of time
 
 	call CheckTrainerBattle_GetPlayerEvent
 	jr c, .ok
@@ -395,8 +395,8 @@ SetMinTwoStepWildEncounterCooldown:
 	ld [wWildEncounterCooldown], a
 	ret
 
-Dummy_CheckScriptFlags3Bit5:
-	call CheckBit5_ScriptFlags3
+Dummy_CheckScriptFlags2Bit5:
+	call CheckBit5_ScriptFlags2
 	ret z
 	call SetXYCompareFlags
 	ret
@@ -422,7 +422,7 @@ rept SCENE_SCRIPT_SIZE
 endr
 
 	call GetMapScriptsBank
-	call GetFarHalfword
+	call GetFarWord
 	call GetMapScriptsBank
 	call CallScript
 
@@ -480,8 +480,8 @@ CheckTimeEvents:
 	scf
 	ret
 
-.unused
-	ld a, 8
+.unused ; unreferenced
+	ld a, $8 ; ???
 	scf
 	ret
 
@@ -540,7 +540,7 @@ TryObjectEvent:
 
 .IsObject:
 	call PlayTalkObject
-	ldh a, [hObjectStructIndexBuffer]
+	ldh a, [hObjectStructIndex]
 	call GetObjectStruct
 	ld hl, OBJECT_MAP_OBJECT_INDEX
 	add hl, bc
@@ -557,7 +557,7 @@ TryObjectEvent:
 ; Bug: If IsInArray returns nc, data at bc will be executed as code.
 	push bc
 	ld de, 3
-	ld hl, .pointers
+	ld hl, ObjectEventTypeArray
 	call IsInArray
 	jr nc, .nope
 	pop bc
@@ -573,7 +573,8 @@ TryObjectEvent:
 	xor a
 	ret
 
-.pointers
+ObjectEventTypeArray:
+	table_width 3, ObjectEventTypeArray
 	dbw OBJECTTYPE_SCRIPT, .script
 	dbw OBJECTTYPE_ITEMBALL, .itemball
 	dbw OBJECTTYPE_TRAINER, .trainer
@@ -582,7 +583,8 @@ TryObjectEvent:
 	dbw OBJECTTYPE_4, .four
 	dbw OBJECTTYPE_5, .five
 	dbw OBJECTTYPE_6, .six
-	db -1
+	assert_table_length NUM_OBJECT_TYPES
+	db -1 ; end
 
 .script
 	ld hl, MAPOBJECT_SCRIPT_POINTER
@@ -638,11 +640,12 @@ TryBGEvent:
 
 .is_bg_event:
 	ld a, [wCurBGEventType]
-	ld hl, .bg_events
+	ld hl, BGEventJumptable
 	rst JumpTable
 	ret
 
-.bg_events
+BGEventJumptable:
+	table_width 2, BGEventJumptable
 	dw .read
 	dw .up
 	dw .down
@@ -652,27 +655,30 @@ TryBGEvent:
 	dw .ifnotset
 	dw .itemifset
 	dw .copy
+	assert_table_length NUM_BGEVENTS
 
-.up
+.up:
 	ld b, OW_UP
 	jr .checkdir
-.down
+
+.down:
 	ld b, OW_DOWN
 	jr .checkdir
-.right
+
+.right:
 	ld b, OW_RIGHT
 	jr .checkdir
-.left
+
+.left:
 	ld b, OW_LEFT
 	jr .checkdir
 
-.checkdir
+.checkdir:
 	ld a, [wPlayerDirection]
 	and %1100
 	cp b
 	jp nz, .dontread
-
-.read
+.read:
 	call PlayTalkObject
 	ld hl, wCurBGEventScriptAddr
 	ld a, [hli]
@@ -683,7 +689,7 @@ TryBGEvent:
 	scf
 	ret
 
-.itemifset
+.itemifset:
 	call CheckBGEventFlag
 	jp nz, .dontread
 	call PlayTalkObject
@@ -697,7 +703,7 @@ TryBGEvent:
 	scf
 	ret
 
-.copy
+.copy:
 	call CheckBGEventFlag
 	jr nz, .dontread
 	call GetMapScriptsBank
@@ -706,29 +712,28 @@ TryBGEvent:
 	call FarCopyBytes
 	jr .dontread
 
-.ifset
+.ifset:
 	call CheckBGEventFlag
 	jr z, .dontread
 	jr .thenread
 
-.ifnotset
+.ifnotset:
 	call CheckBGEventFlag
 	jr nz, .dontread
-
-.thenread
+.thenread:
 	push hl
 	call PlayTalkObject
 	pop hl
 	inc hl
 	inc hl
 	call GetMapScriptsBank
-	call GetFarHalfword
+	call GetFarWord
 	call GetMapScriptsBank
 	call CallScript
 	scf
 	ret
 
-.dontread
+.dontread:
 	xor a
 	ret
 
@@ -739,7 +744,7 @@ CheckBGEventFlag:
 	ld l, a
 	push hl
 	call GetMapScriptsBank
-	call GetFarHalfword
+	call GetFarWord
 	ld e, l
 	ld d, h
 	ld b, CHECK_FLAG
@@ -752,13 +757,14 @@ CheckBGEventFlag:
 PlayerMovement:
 	farcall DoPlayerMovement
 	ld a, c
-	ld hl, .pointers
+	ld hl, PlayerMovementPointers
 	rst JumpTable
 	ld a, c
 	ret
 
-.pointers
+PlayerMovementPointers:
 ; entries correspond to PLAYERMOVEMENT_* constants
+	table_width 2, PlayerMovementPointers
 	dw .normal
 	dw .warp
 	dw .turn
@@ -767,6 +773,7 @@ PlayerMovement:
 	dw .continue
 	dw .exit_water
 	dw .jump
+	assert_table_length NUM_PLAYER_MOVEMENTS
 
 .normal:
 .finish:
@@ -797,7 +804,6 @@ PlayerMovement:
 	ld a, BANK(Script_ForcedMovement)
 	ld hl, Script_ForcedMovement
 	call CallScript
-;	ld a, -1
 	ld c, a
 	scf
 	ret
@@ -812,7 +818,7 @@ PlayerMovement:
 CheckMenuOW:
 	xor a
 	ldh [hMenuReturn], a
-	ldh [hUnusedFFA1], a
+	ldh [hUnusedByte], a
 	ldh a, [hJoyPressed]
 
 	bit SELECT_F, a
@@ -900,7 +906,7 @@ CountStep:
 	; Increase the EXP of (both) DayCare Pokemon by 1.
 	farcall DayCareStep
 
-	; Every four steps, deal damage to all Poisoned Pokemon
+	; Every 4 steps, deal damage to all poisoned Pokemon.
 	ld hl, wPoisonStepCount
 	ld a, [hl]
 	cp 4
@@ -974,6 +980,7 @@ DoPlayerEvent:
 
 PlayerEventScriptPointers:
 ; entries correspond to PLAYEREVENT_* constants
+	table_width 3, PlayerEventScriptPointers
 	dba InvalidEventScript      ; PLAYEREVENT_NONE
 	dba SeenByTrainerScript     ; PLAYEREVENT_SEENBYTRAINER
 	dba TalkToTrainerScript     ; PLAYEREVENT_TALKTOTRAINER
@@ -985,6 +992,7 @@ PlayerEventScriptPointers:
 	dba HatchEggScript          ; PLAYEREVENT_HATCH
 	dba ChangeDirectionScript   ; PLAYEREVENT_JOYCHANGEFACING
 	dba InvalidEventScript      ; (NUM_PLAYER_EVENTS)
+	assert_table_length NUM_PLAYER_EVENTS + 1
 
 InvalidEventScript:
 	end

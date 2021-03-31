@@ -1,5 +1,6 @@
 SpriteAnimOAMData:
-; entries correspond to SPRITE_ANIM_OAMSET_* constants
+; entries correspond to SPRITE_ANIM_OAMSET_* constants (see constants/sprite_anim_constants.asm)
+	table_width 3, SpriteAnimOAMData
 	; vtile offset, data pointer
 	dbw $00, .OAMData_RedWalk                  ; SPRITE_ANIM_OAMSET_RED_WALK_1
 	dbw $04, .OAMData_RedWalk                  ; SPRITE_ANIM_OAMSET_RED_WALK_2
@@ -141,6 +142,7 @@ SpriteAnimOAMData:
 	dbw $08, .OAMData_GameFreakLogo4_11        ; SPRITE_ANIM_OAMSET_GAMEFREAK_LOGO_9
 	dbw $04, .OAMData_GameFreakLogo4_11        ; SPRITE_ANIM_OAMSET_GAMEFREAK_LOGO_10
 	dbw $00, .OAMData_GameFreakLogo4_11        ; SPRITE_ANIM_OAMSET_GAMEFREAK_LOGO_11
+	assert_table_length NUM_SPRITE_ANIM_OAMSETS
 
 .OAMData_1x1_Palette0:
 	db 1
@@ -181,7 +183,7 @@ SpriteAnimOAMData:
 	dbsprite -1,  0,  0,  0, $00, 7 | Y_FLIP
 	dbsprite  0,  0,  0,  0, $00, 7 | X_FLIP | Y_FLIP
 
-; unused
+.OAMData_Unknown1: ; unreferenced
 	db 4
 	dbsprite -1, -1,  0,  0, $00, 0 | PRIORITY
 	dbsprite  0, -1,  0,  0, $00, 0 | X_FLIP | PRIORITY
@@ -305,7 +307,7 @@ SpriteAnimOAMData:
 	dbsprite  1,  0,  4,  4, $17, 0
 	dbsprite  1,  1,  4,  4, $18, 0
 
-; unused
+.OAMData_Unknown2: ; unreferenced
 	db 36
 	dbsprite -3, -3,  0,  0, $00, 0
 	dbsprite -2, -3,  0,  0, $01, 0

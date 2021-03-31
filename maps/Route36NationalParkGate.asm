@@ -463,7 +463,7 @@ BugCatchingContestant10BScript:
 	closetext
 	end
 
-UnusedBugCatchingContestExplanationSign:
+UnusedBugCatchingContestExplanationSign: ; unreferenced
 ; duplicate of BugCatchingContestExplanationSign in Route35NationalParkGate.asm
 	jumptext UnusedBugCatchingContestExplanationText
 
@@ -503,7 +503,7 @@ Route36NationalParkGateOfficer1GiveParkBallsText:
 
 Route36NationalParkGatePlayerReceivedParkBallsText:
 	text "<PLAYER> received"
-	line "20 PARK BALLS."
+	line "{d:BUG_CONTEST_BALLS} PARK BALLS."
 	done
 
 Route36NationalParkGateOfficer1ExplainsRulesText:
@@ -512,7 +512,7 @@ Route36NationalParkGateOfficer1ExplainsRulesText:
 	cont "est bug #MON"
 	cont "is the winner."
 
-	para "You have 20"
+	para "You have {d:BUG_CONTEST_MINUTES}"
 	line "minutes."
 
 	para "If you run out of"
@@ -795,10 +795,9 @@ BugCatchingContestant10BStillCompetingText:
 	line "win."
 	done
 
-UnusedSudowoodoText:
-; This text is unused and unreferenced in the final game.
-; The tree Pokémon is Sudowoodo.
-; The Silph Scope 2 was later reworked into the Squirtbottle.
+UnusedSilphScope2Text: ; unreferenced
+; This text is referring to Sudowoodo.
+; The SILPHSCOPE2 was later reworked into the SQUIRTBOTTLE.
 	text "I hear there's a"
 	line "#MON that looks"
 	cont "just like a tree."

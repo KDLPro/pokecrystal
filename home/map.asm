@@ -124,12 +124,12 @@ LoadMetatiles::
 	ld a, [wOverworldMapAnchor + 1]
 	ld d, a
 	ld hl, wSurroundingTiles
-	ld b, SURROUNDING_HEIGHT / METATILE_WIDTH ; 5
+	ld b, SCREEN_META_HEIGHT
 
 .row
 	push de
 	push hl
-	ld c, SURROUNDING_WIDTH / METATILE_WIDTH ; 6
+	ld c, SCREEN_META_WIDTH
 
 .col
 	push de
@@ -195,7 +195,7 @@ endr
 	add hl, de
 	pop de
 	ld a, [wMapWidth]
-	add 6
+	add MAP_CONNECTION_PADDING_WIDTH * 2
 	add e
 	ld e, a
 	jr nc, .ok2
@@ -1124,27 +1124,27 @@ CoordinatesEventText::
 	text_end
 
 CheckObjectMask::
-	ldh a, [hMapObjectIndexBuffer]
+	ldh a, [hMapObjectIndex]
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld hl, wObjectMasks
 	add hl, de
 	ld a, [hl]
 	ret
 
 MaskObject::
-	ldh a, [hMapObjectIndexBuffer]
+	ldh a, [hMapObjectIndex]
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld hl, wObjectMasks
 	add hl, de
 	ld [hl], -1 ; masked
 	ret
 
 UnmaskObject::
-	ldh a, [hMapObjectIndexBuffer]
+	ldh a, [hMapObjectIndex]
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld hl, wObjectMasks
 	add hl, de
 	ld [hl], 0 ; unmasked
@@ -1278,7 +1278,7 @@ BackupBGMapColumn::
 	ret
 
 UpdateBGMapRow::
-	ld hl, wBGMapBufferPtrs
+	ld hl, wBGMapBufferPointers
 	push de
 	call .iteration
 	pop de
@@ -1309,7 +1309,7 @@ UpdateBGMapRow::
 	ret
 
 UpdateBGMapColumn::
-	ld hl, wBGMapBufferPtrs
+	ld hl, wBGMapBufferPointers
 	ld c, SCREEN_HEIGHT
 .loop
 	ld a, e
@@ -1433,7 +1433,7 @@ SaveScreen::
 	ld de, wScreenSave
 	ld a, [wMapWidth]
 	add 6
-	ldh [hMapObjectIndexBuffer], a
+	ldh [hMapObjectIndex], a
 	ld a, [wPlayerStepDirection]
 	and a
 	jr z, .down
@@ -1447,7 +1447,7 @@ SaveScreen::
 
 .up
 	ld de, wScreenSave + SCREEN_META_WIDTH
-	ldh a, [hMapObjectIndexBuffer]
+	ldh a, [hMapObjectIndex]
 	ld c, a
 	ld b, 0
 	add hl, bc
@@ -1719,7 +1719,7 @@ GetCoordTile::
 	and a
 	jr z, .nope
 	ld l, a
-	ld h, $0
+	ld h, 0
 	add hl, hl
 	add hl, hl
 	ld a, [wTilesetCollisionAddress]
@@ -2163,7 +2163,8 @@ GetMapEnvironment::
 	pop hl
 	ret
 
-	ret ; unused
+Map_DummyFunction:: ; unreferenced
+	ret
 
 GetAnyMapEnvironment::
 	push hl
@@ -2284,12 +2285,12 @@ LoadMapTileset::
 	push bc
 
 	ld hl, Tilesets
-	ld bc, wTilesetEnd - wTileset
+	ld bc, TILESET_LENGTH
 	ld a, [wMapTileset]
 	call AddNTimes
 
 	ld de, wTilesetBank
-	ld bc, wTilesetEnd - wTileset
+	ld bc, TILESET_LENGTH
 
 	ld a, BANK(Tilesets)
 	call FarCopyBytes
@@ -2298,10 +2299,8 @@ LoadMapTileset::
 	pop hl
 	ret
 
-InexplicablyEmptyFunction::
-; unused
-; Inexplicably empty.
-; Seen in PredefPointers.
+DummyEndPredef::
+; Unused function at the end of PredefPointers.
 rept 16
 	nop
 endr

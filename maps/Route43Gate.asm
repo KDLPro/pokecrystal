@@ -196,7 +196,7 @@ RocketText_TollFee:
 	text "Hold it there,"
 	line "kiddo!"
 
-	para "The toll is ¥1000"
+	para "The toll is ¥{d:ROUTE43GATE_TOLL}"
 	line "to go through."
 	done
 
@@ -234,7 +234,7 @@ OfficerText_FoundTM:
 	cont "you take it away?"
 	done
 
-Text_ReceivedTM30:
+Text_ReceivedTM30: ; unreferenced
 	text "<PLAYER> received"
 	line "TM30."
 	done

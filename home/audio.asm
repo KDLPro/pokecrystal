@@ -49,7 +49,7 @@ UpdateSound::
 	ret
 
 _LoadMusicByte::
-; wCurMusicByte = [a:de]
+; [wCurMusicByte] = [a:de]
 	ldh [hROMBank], a
 	ld [MBC3RomBank], a
 
@@ -143,7 +143,7 @@ PlayCry::
 	ld [MBC3RomBank], a
 
 	ld hl, PokemonCries
-rept 6 ; sizeof(mon_cry)
+rept MON_CRY_LENGTH
 	add hl, de
 endr
 
@@ -436,7 +436,7 @@ SpecialMapMusic::
 	and a
 	ret
 
-.bike
+.bike ; unreferenced
 	ld de, MUSIC_BICYCLE
 	scf
 	ret

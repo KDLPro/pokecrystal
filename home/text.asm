@@ -141,12 +141,15 @@ RadioTerminator::
 
 PrintText::
 	call SetUpTextbox
+	; fallthrough
+
 BuenaPrintText::
 	push hl
 	hlcoord TEXTBOX_INNERX, TEXTBOX_INNERY
 	lb bc, TEXTBOX_INNERH - 1, TEXTBOX_INNERW
 	call ClearBox
 	pop hl
+	; fallthrough
 
 PrintTextboxText::
 	bccoord TEXTBOX_INNERX, TEXTBOX_INNERY
@@ -163,6 +166,7 @@ SetUpTextbox::
 
 PlaceString::
 	push hl
+	; fallthrough
 
 PlaceNextChar::
 	ld a, [de]
@@ -173,7 +177,9 @@ PlaceNextChar::
 	pop hl
 	ret
 
-	pop de ; unused
+DummyChar:: ; unreferenced
+	pop de
+	; fallthrough
 
 NextChar::
 	inc de
@@ -242,7 +248,7 @@ ENDM
 	dict "ﾞ",         .place ; should be .diacritic
 	jr .not_diacritic
 
-.diacritic
+.diacritic ; unreferenced
 	ld b, a
 	call Diacritic
 	jp NextChar
@@ -250,18 +256,19 @@ ENDM
 .not_diacritic
 	cp FIRST_REGULAR_TEXT_CHAR
 	jr nc, .place
-
+; dakuten or handakuten
 	cp "パ"
 	jr nc, .handakuten
-
-.dakuten
+; dakuten
 	cp FIRST_HIRAGANA_DAKUTEN_CHAR
 	jr nc, .hiragana_dakuten
+; katakana dakuten
 	add "カ" - "ガ"
-	jr .katakana_dakuten
+	jr .place_dakuten
+
 .hiragana_dakuten
 	add "か" - "が"
-.katakana_dakuten
+.place_dakuten
 	ld b, "ﾞ" ; dakuten
 	call Diacritic
 	jr .place
@@ -269,11 +276,13 @@ ENDM
 .handakuten
 	cp "ぱ"
 	jr nc, .hiragana_handakuten
+; katakana handakuten
 	add "ハ" - "パ"
-	jr .katakana_handakuten
+	jr .place_handakuten
+
 .hiragana_handakuten
 	add "は" - "ぱ"
-.katakana_handakuten
+.place_handakuten
 	ld b, "ﾟ" ; handakuten
 	call Diacritic
 
@@ -316,17 +325,18 @@ PlaceKokoWa:  print_name PlaceKokoWaText
 PlaceMoveTargetsName::
 	ldh a, [hBattleTurn]
 	xor 1
-	jr PlaceMoveUsersName.place
+	jr PlaceBattlersName
 
 PlaceMoveUsersName::
 	ldh a, [hBattleTurn]
+	; fallthrough
 
-.place:
+PlaceBattlersName:
 	push de
 	and a
 	jr nz, .enemy
 
-	ld de, wBattleMonNick
+	ld de, wBattleMonNickname
 	jr PlaceCommandCharacter
 
 .enemy
@@ -334,7 +344,7 @@ PlaceMoveUsersName::
 	call PlaceString
 	ld h, b
 	ld l, c
-	ld de, wEnemyMonNick
+	ld de, wEnemyMonNickname
 	jr PlaceCommandCharacter
 
 PlaceEnemysName::
@@ -630,7 +640,7 @@ UnloadBlinkingCursor::
 	ldcoord_a 18, 17
 	ret
 
-FarString::
+PlaceFarString::
 	ld b, a
 	ldh a, [hROMBank]
 	push af
@@ -689,6 +699,7 @@ DoTextUntilTerminator::
 
 TextCommands::
 ; entries correspond to TX_* constants (see macros/scripts/text.asm)
+	table_width 2, TextCommands
 	dw TextCommand_START         ; TX_START
 	dw TextCommand_RAM           ; TX_RAM
 	dw TextCommand_BCD           ; TX_BCD
@@ -712,6 +723,7 @@ TextCommands::
 	dw TextCommand_STRINGBUFFER  ; TX_STRINGBUFFER
 	dw TextCommand_DAY           ; TX_DAY
 	dw TextCommand_FAR           ; TX_FAR
+	assert_table_length NUM_TEXT_CMDS
 
 TextCommand_START::
 ; write text until "@"
@@ -988,8 +1000,8 @@ TextCommand_STRINGBUFFER::
 ; 2: wStringBuffer5
 ; 3: wStringBuffer2
 ; 4: wStringBuffer1
-; 5: wEnemyMonNick
-; 6: wBattleMonNick
+; 5: wEnemyMonNickname
+; 6: wBattleMonNickname
 	ld a, [hli]
 	push hl
 	ld e, a
@@ -998,7 +1010,7 @@ TextCommand_STRINGBUFFER::
 	add hl, de
 	add hl, de
 	ld a, BANK(StringBufferPointers)
-	call GetFarHalfword
+	call GetFarWord
 	ld d, h
 	ld e, l
 	ld h, b

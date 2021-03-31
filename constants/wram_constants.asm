@@ -21,11 +21,15 @@ AUTO_INPUT EQU $ff
 	const TEMPMON    ; 3
 	const WILDMON    ; 4
 
-; wGameTimerPause::
-GAMETIMERPAUSE_TIMER_PAUSED_F EQU 0
-GAMETIMERPAUSE_MOBILE_7_F     EQU 7
+; wGameTimerPaused::
+GAME_TIMER_PAUSED_F EQU 0
+GAME_TIMER_MOBILE_F EQU 7
 
-; wOptions::
+; wJoypadDisable::
+JOYPAD_DISABLE_MON_FAINT_F    EQU 6
+JOYPAD_DISABLE_SGB_TRANSFER_F EQU 7
+
+; wOptions1::
 TEXT_DELAY_MASK EQU %111
 	const_def 4
 	const NO_TEXT_SCROLL ; 4
@@ -80,11 +84,12 @@ LEFT_MASK  EQU 1 << LEFT
 RIGHT_MASK EQU 1 << RIGHT
 
 ; wFacingDirection::
+	const_def NUM_DIRECTIONS - 1, -1
+	shift_const FACE_DOWN  ; 8
+	shift_const FACE_UP    ; 4
+	shift_const FACE_LEFT  ; 2
+	shift_const FACE_RIGHT ; 1
 FACE_CURRENT EQU 0
-FACE_DOWN    EQU 8
-FACE_UP      EQU 4
-FACE_LEFT    EQU 2
-FACE_RIGHT   EQU 1
 
 ; wPokemonWithdrawDepositParameter::
 PC_WITHDRAW       EQU 0
@@ -179,10 +184,6 @@ SPAWN_RED   EQU 2
 	const FRIDAY    ; 5
 	const SATURDAY  ; 6
 
-; wMapObjects::
-PLAYER_OBJECT EQU 0
-NUM_OBJECTS   EQU 16
-
 ; wStatusFlags::
 	const_def
 	const STATUSFLAGS_POKEDEX_F                  ; 0
@@ -244,8 +245,8 @@ NUM_BADGES EQU NUM_JOHTO_BADGES + NUM_KANTO_BADGES
 	const POKEGEAR_RADIO_CARD_F ; 1
 	const POKEGEAR_PHONE_CARD_F ; 2
 	const POKEGEAR_EXPN_CARD_F  ; 3
-
-POKEGEAR_OBTAINED_F EQU 7
+	const_skip 3
+	const POKEGEAR_OBTAINED_F   ; 7
 
 ; wWhichRegisteredItem::
 REGISTERED_POCKET EQU %11000000

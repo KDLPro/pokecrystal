@@ -33,11 +33,11 @@ noise: MACRO
 ENDM
 
 notetype: MACRO
-IF _NARG >= 2
+if _NARG >= 2
 	note_type \1, \2 >> 4, \2 & $0f
-ELSE
+else
 	note_type \1
-ENDC
+endc
 ENDM
 
 pitchoffset: MACRO
@@ -57,11 +57,11 @@ ENDM
 unknownmusic0xde EQUS "sound_duty"
 sound_duty: MACRO
 	db duty_cycle_pattern_cmd
-IF _NARG == 4
+if _NARG == 4
 	db \1 | (\2 << 2) | (\3 << 4) | (\4 << 6)
-ELSE
+else
 	db \1
-ENDC
+endc
 ENDM
 
 togglesfx EQUS "toggle_sfx"
@@ -176,31 +176,32 @@ readmoney: MACRO
 	getmoney \2, \1
 ENDM
 
-RAM2MEM           EQUS "getnum"
-loadfont          EQUS "opentext"
-loadmenudata      EQUS "loadmenu"
-loadmenuheader    EQUS "loadmenu"
-writebackup       EQUS "closewindow"
-interpretmenu     EQUS "_2dmenu"
-interpretmenu2    EQUS "verticalmenu"
-buttonsound       EQUS "promptbutton"
-battlecheck       EQUS "randomwildmon"
-loadtrainerdata   EQUS "loadtemptrainer"
-loadpokedata      EQUS "loadwildmon"
-returnafterbattle EQUS "reloadmapafterbattle"
-trainerstatus     EQUS "trainerflagaction"
-talkaftercancel   EQUS "endifjustbattled"
-talkaftercheck    EQUS "checkjustbattled"
-playrammusic      EQUS "encountermusic"
-reloadmapmusic    EQUS "dontrestartmapmusic"
-resetfuncs        EQUS "endall"
-storetext         EQUS "battletowertext"
-displaylocation   EQUS "landmarktotext"
-givepokeitem      EQUS "givepokemail"
-checkpokeitem     EQUS "checkpokemail"
-passtoengine      EQUS "autoinput"
-verbosegiveitem2  EQUS "verbosegiveitemvar"
-loadbytec2cf      EQUS "writeunusedbytebuffer"
+RAM2MEM               EQUS "getnum"
+loadfont              EQUS "opentext"
+loadmenudata          EQUS "loadmenu"
+loadmenuheader        EQUS "loadmenu"
+writebackup           EQUS "closewindow"
+interpretmenu         EQUS "_2dmenu"
+interpretmenu2        EQUS "verticalmenu"
+buttonsound           EQUS "promptbutton"
+battlecheck           EQUS "randomwildmon"
+loadtrainerdata       EQUS "loadtemptrainer"
+loadpokedata          EQUS "loadwildmon"
+returnafterbattle     EQUS "reloadmapafterbattle"
+trainerstatus         EQUS "trainerflagaction"
+talkaftercancel       EQUS "endifjustbattled"
+talkaftercheck        EQUS "checkjustbattled"
+playrammusic          EQUS "encountermusic"
+reloadmapmusic        EQUS "dontrestartmapmusic"
+resetfuncs            EQUS "endall"
+storetext             EQUS "battletowertext"
+displaylocation       EQUS "landmarktotext"
+givepokeitem          EQUS "givepokemail"
+checkpokeitem         EQUS "checkpokemail"
+passtoengine          EQUS "autoinput"
+verbosegiveitem2      EQUS "verbosegiveitemvar"
+loadbytec2cf          EQUS "writeunusedbyte"
+writeunusedbytebuffer EQUS "writeunusedbyte"
 
 ; macros/scripts/maps.asm
 
